@@ -108,3 +108,25 @@ export const RegisterSchema = z
     message: "Passwords do not match.",
     path: ["passwordConfirmation"],
   });
+
+
+export const TimeIntervalsSchema = z.object({
+  intervals: z.array(z.object({
+    weekDay: z.number(),
+    startTimeInMinutes: z.number(),
+    endTimeInMinutes: z.number(),
+  }))
+});
+
+export const CreateSchedulingBody = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  observations: z.string(),
+  date: z.string().datetime()
+});
+
+export const ConfirmFormSchema = z.object({
+  name: z.string().min(3, { message: 'O nome precisa de no mínimo 3 caracteres.' }),
+  email: z.string().email({ message: 'Digite um e-mail válido.' }),
+  observations: z.string().nullable(),
+});
