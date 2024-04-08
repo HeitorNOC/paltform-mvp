@@ -15,4 +15,8 @@ export const NAV_LINKS = [
     title: "Settings",
     path: "/settings",
   },
+  {
+    title: "Schedule",
+    path: "/schedule",
+  },
 ];

@@ -1,3 +1,5 @@
+"use server";
+
 import { getUserById } from "@/data/user";
 import { currentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
