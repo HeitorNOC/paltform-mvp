@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CalendarStep } from "./calendarStep/page";
 import { ConfirmStep } from "./confirmStep/page";
 
-export function ScheduleForm() {
+export default function ScheduleForm() {
   const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null)
 
   function handleClearSelectedDateTime() {
@@ -13,8 +13,9 @@ export function ScheduleForm() {
 
   if (selectedDateTime) {
     return <ConfirmStep schedulingDate={selectedDateTime} onCancelConfirmation={handleClearSelectedDateTime}/>
-  }
+  } 
 
-  return <CalendarStep onSelectDateTime={setSelectedDateTime}/>
+   return <CalendarStep onSelectDateTime={setSelectedDateTime}/> 
+  
   
 }

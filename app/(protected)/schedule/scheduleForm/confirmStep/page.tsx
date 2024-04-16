@@ -1,17 +1,20 @@
 "use client"
 
 import { CalendarBlank, Clock } from "phosphor-react";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { ConfirmFormSchema } from "@/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { startTransition, useState } from "react";
-import { schedule } from "@/actions/schedule";
+import { schedule as scheduleFn } from "@/actions/schedule";
+import { Toaster } from "@/components/ui/sonner";
+import FormError from "@/components/form-error";
+import FormSuccess from "@/components/form-success";
+import * as z from 'zod'
 
 type ConfirmFormData = z.infer<typeof ConfirmFormSchema>
 
@@ -21,43 +24,40 @@ interface ConfirmStepProps {
 }
 
 export function ConfirmStep({ schedulingDate, onCancelConfirmation }: ConfirmStepProps) {
-  const { register, handleSubmit, formState: { isSubmitting, errors }} = useForm<ConfirmFormData>({
+  const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm<ConfirmFormData>({
     resolver: zodResolver(ConfirmFormSchema)
   })
   const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
 
   const router = useRouter()
-  const username = String(router.query.username)
 
-  async function handleConfirmScheduling(values: ConfirmFormData) {
+  const handleConfirmScheduling = (values: ConfirmFormData) => {
     const { name, email, observations } = values
 
+    const formattedDate = dayjs(schedulingDate).format("YYYY-MM-DDTHH:mm:ss[Z]");
+
     const props = {
-        name,
-        email,
-        observations: observations ? observations : '',
-        date: String(schedulingDate)
-    }
+      name,
+      email,
+      observations: observations ? observations : '',
+      date: formattedDate
+    };
 
     startTransition(() => {
-        try {
-            schedule(props).then((data) => {
-                if (data?.error) {
-                    setError(data.error);
-                    return
-                }
-
-                onCancelConfirmation()
-            });
-        } catch (err) {
-            setError(`Something went wrong! Error:${err}`);
-        } finally {
-            setError("");
-        }
-    });
-
-    await router.push(`/schedule/${username}`)
-    onCancelConfirmation()
+      try {
+        scheduleFn(props).then((data: any) => {
+          if (data?.error) {
+            setError(data.error)
+          } else if (data.success) {
+            setSuccess(data.success)
+            router.push('/')
+          }
+        })
+      } catch (err) {
+        setError(`Something went wrong! Error:${err}`);
+      }
+    })
   }
 
   const describedDate = dayjs(schedulingDate).format('DD[ de ]MMMM[ de ]YYYY')
@@ -79,7 +79,7 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation }: ConfirmSte
       <form onSubmit={handleSubmit(handleConfirmScheduling)} className="flex flex-col space-y-4">
         <div className="flex flex-col space-y-2">
           <span className="text-sm">Nome completo</span>
-          <Input placeholder="Seu nome" {...register('name')}/>
+          <Input placeholder="Seu nome" {...register('name')} />
           {errors.name && (
             <span className="text-sm text-red-500">{errors.name.message}</span>
           )}
@@ -87,15 +87,15 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation }: ConfirmSte
 
         <div className="flex flex-col space-y-2">
           <span className="text-sm">Endereço de e-mail</span>
-          <Input type="email" placeholder="johndoe@example.com" {...register('email')}/>
+          <Input type="email" placeholder="johndoe@example.com" {...register('email')} />
           {errors.email && (
             <span className="text-sm text-red-500">{errors.email.message}</span>
           )}
         </div>
-        
+
         <div className="flex flex-col space-y-2">
           <span className="text-sm">Observações</span>
-          <Textarea {...register('observations')}/>
+          <Textarea {...register('observations')} />
         </div>
 
         <div className="flex justify-end gap-2 mt-2">
@@ -103,6 +103,8 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation }: ConfirmSte
           <Button type="submit" disabled={isSubmitting}>Confirmar</Button>
         </div>
       </form>
+      {error && <FormError message={error} />}
+      {success && <FormSuccess message={success} />}
     </div>
   )
 }

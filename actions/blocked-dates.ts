@@ -5,53 +5,63 @@ import { currentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 export const blockedDates = async (year: number, month: number) => {
-    const user = await currentUser();
+  const user = await currentUser();
 
-    if (!user) {
-        return { error: "Unauthorized" };
+  if (!user) {
+    return { error: "Unauthorized" };
+  }
+
+  const dbUser = await getUserById(user.id);
+
+  if (!dbUser) {
+    return { error: "Unauthorized" };
+  }
+
+  if (!year || !month) {
+    return { error: 'Year or month not specified.' }
+  }
+
+  const availableWeekDays = await db.userTimeInterval.findMany({
+    select: {
+      week_day: true,
+    },
+    where: {
+      user_id: user.id,
+    },
+  })
+
+  const blockedWeekDays = [0, 1, 2, 3, 4, 5, 6].filter((weekDay) => {
+    return !availableWeekDays.some(
+      (availableWeekDay: any) => availableWeekDay.week_day === weekDay,
+    )
+  })
+
+  const haveSomeScheule = await db.scheduling.findFirst({
+    where: {
+      user_id: user.id
     }
+  })
 
-    const dbUser = await getUserById(user.id);
+  let blockedDates: any[] = []
 
-    if (!dbUser) {
-        return { error: "Unauthorized" };
-    }
-
-    if (!year || !month) {
-        return { error: 'Year or month not specified.' }
-    }
-
-    const availableWeekDays = await db.userTimeInterval.findMany({
-        select: {
-            week_day: true,
-        },
-        where: {
-            user_id: user.id,
-        },
-    })
-
-    const blockedWeekDays = [0, 1, 2, 3, 4, 5, 6].filter((weekDay) => {
-        return !availableWeekDays.some(
-            (availableWeekDay: any) => availableWeekDay.week_day === weekDay,
-        )
-    })
-
+  if (haveSomeScheule) {
     const blockedDatesRaw: Array<{ date: number }> = await db.$queryRaw`
-    SELECT
-      EXTRACT(DAY FROM S.DATE) AS date,
-      COUNT(S.date) AS amount,
-      ((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60) AS size
+     SELECT
+        STRFTIME('%d', S.date) AS date,
+        COUNT(S.date) AS amount,
+        ((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60) AS size
     FROM schedulings S
     LEFT JOIN user_time_intervals UTI
-      ON UTI.week_day = WEEKDAY(DATE_ADD(S.date, INTERVAL 1 DAY))
+        ON UTI.week_day = CAST((STRFTIME('%w', DATE(S.date, '+1 day'))) AS INTEGER)
     WHERE S.user_id = ${user.id}
-      AND DATE_FORMAT(S.date, "%Y-%m") = ${`${year}-${month}`}
-    GROUP BY EXTRACT(DAY FROM S.DATE),
-      ((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60)
+        AND STRFTIME('%Y', S.date) = ${year}
+        AND STRFTIME('%m', S.date) = ${month}
+    GROUP BY STRFTIME('%d', S.date), ((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60)
     HAVING amount >= size
-  `
+    `
 
-    const blockedDates = blockedDatesRaw.map((item) => item.date)
+    blockedDates = blockedDatesRaw.map((item) => item.date)
+  }
 
-    return { success: {blockedWeekDays, blockedDates} }
+  return { blockedWeekDays, blockedDates }
 }

@@ -8,7 +8,10 @@ import dayjs from "dayjs";
 import { Button } from "./ui/button";
 import { Table, TableHeader, TableRow, TableCell, TableBody } from "./ui/table";
 import { blockedDates as blockedDatesFn } from "@/actions/blocked-dates";
+import 'dayjs/locale/pt-br'
+import Spinner from "./spinner";
 
+dayjs.locale('pt-br')
 interface CalendarWeek {
     week: number;
     days: Array<{
@@ -35,12 +38,13 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
     });
     const [error, setError] = useState<string>("");
     const [blockedDates, setBlockedDates] = useState<BlockedDates>()
+    const [loading, setLoading] = useState<boolean>(true)
 
     useEffect(() => {
-        onSubmit()
+        createComponent()
     }, [])
 
-    const onSubmit = () => {
+    const createComponent = () => {
         startTransition(() => {
             try {
                 blockedDatesFn(currentDate.get('year'), currentDate.get('month')).then((data) => {
@@ -48,13 +52,14 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
                         setError(data.error);
                         return
                     }
-
-                    setBlockedDates(data.success)
+                    else if (data.blockedDates && data.blockedWeekDays) {
+                        setBlockedDates({ blockedDates: data.blockedDates, blockedWeekDays: data.blockedWeekDays })
+                    }
                 });
             } catch (err) {
                 setError(`Something went wrong! Error:${err}`);
             } finally {
-                setError("");
+                setLoading(false)
             }
         });
     };
@@ -137,7 +142,6 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
                         days: original.slice(i, i + 7),
                     });
                 }
-
                 return weeks;
             },
             []
@@ -146,12 +150,18 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
         return calendarWeeks;
     }, [currentDate, blockedDates]);
 
-    return (
-        <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2>{currentMonth} <span>{currentYear}</span></h2>
+    return loading ? <Spinner /> : (
+        <div className="flex flex-col w-full">
+            <div className="flex justify-between items-center">
+                <h2>
+                    {currentMonth} <span>{currentYear}</span>
+                </h2>
                 <div>
-                    <Button onClick={handlePreviousMonth} title="Previous month" variant="ghost">
+                    <Button
+                        onClick={handlePreviousMonth}
+                        title="Previous month"
+                        variant="ghost"
+                    >
                         <CaretLeft />
                     </Button>
                     <Button onClick={handleNextMonth} title="Next month" variant="ghost">
@@ -164,7 +174,7 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
                     <TableRow>
                         {shortWeekDays.map((weekDay: any) => (
                             <TableCell key={weekDay}>
-                                <span style={{ color: '$gray-200', fontWeight: '$medium', fontSize: '$sm' }}>
+                                <span className="text-gray-200 font-medium text-sm">
                                     {weekDay}.
                                 </span>
                             </TableCell>
@@ -184,7 +194,9 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
                                                 variant="ghost"
                                                 className="w-full aspect-w-1 aspect-h-1 bg-gray-600 text-center cursor-pointer rounded-sm"
                                             >
-                                                <span style={{ color: 'white' }}>{date.get("date")}</span>
+                                                <span className="text-white">
+                                                    {date.get("date")}
+                                                </span>
                                             </Button>
                                         </TableCell>
                                     );
@@ -194,6 +206,6 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
                     })}
                 </TableBody>
             </Table>
-        </>
+        </div>
     );
 }

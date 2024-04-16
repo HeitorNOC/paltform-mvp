@@ -5,20 +5,24 @@ import { currentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import dayjs from 'dayjs'
 
-export const availability = async(date: any) => {
-    const user = await currentUser();
+export const availability = async (date: any) => {
+  const user = await currentUser();
 
-    if (!user) {
-        return { error: "Unauthorized" };
-    }
+  if (!user) {
+    return { error: "Unauthorized" };
+  }
 
-    const dbUser = await getUserById(user.id);
+  const dbUser = await getUserById(user.id);
 
-    if (!dbUser) {
-        return { error: "Unauthorized" };
-    }
+  if (!dbUser) {
+    return { error: "Unauthorized" };
+  }
 
-    const referenceDate = dayjs(String(date))
+  if (!date) {
+    return { error: "Date not provided." }
+  }
+
+  const referenceDate = dayjs(String(date))
   const isPastDate = referenceDate.endOf('day').isBefore(new Date())
 
   if (isPastDate) {
@@ -54,15 +58,15 @@ export const availability = async(date: any) => {
     where: {
       user_id: user.id,
       date: {
-        gte: referenceDate.set('hour', startHour).toDate(),
-        lte: referenceDate.set('hour', endHour).toDate(),
+        gte: referenceDate.set('hour', startHour).format("YYYY-MM-DDTHH:mm:ss[Z]"),
+        lte: referenceDate.set('hour', endHour).format("YYYY-MM-DDTHH:mm:ss[Z]"),
       },
     },
   })
 
   const availableTimes = possibleTimes.filter((time) => {
     const isTimeBlocked = blockedTimes.some(
-      (blockedTime) => blockedTime.date.getHours() === time,
+      (blockedTime) => blockedTime.date.getUTCHours() === time,
     )
 
     const isTimeInPast = referenceDate.set('hour', time).isBefore(new Date())
@@ -70,5 +74,5 @@ export const availability = async(date: any) => {
     return !isTimeBlocked && !isTimeInPast
   })
 
-  return { success: { possibleTimes, availableTimes } }
+  return { possibleTimes, availableTimes }
 }

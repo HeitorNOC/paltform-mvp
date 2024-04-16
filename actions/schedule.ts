@@ -1,3 +1,5 @@
+"use server"
+
 import { getUserById } from "@/data/user";
 import { currentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -8,8 +10,9 @@ import { getGoogleOAuthToken } from "@/lib/google"
 import * as z from "zod";
 
 export const schedule = async (values: z.infer<typeof CreateSchedulingBody>) => {
+
     const user = await currentUser();
-    const validatedFields = CreateSchedulingBody.safeParse(values);
+    const validatedFields = CreateSchedulingBody.parse(values);
 
     if (!user) {
         return { error: "Unauthorized" };
@@ -21,11 +24,14 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>) => 
         return { error: "Unauthorized" };
     }
 
-    if (!validatedFields.success) {
+
+    if (!validatedFields) {
         return { error: "Invalid fields." };
     }
 
-    const { date, email, name, observations } = validatedFields.data
+    console.log('cheguei')
+
+    const { date, email, name, observations } = validatedFields
 
     const schedulingDate = dayjs(date).startOf('hour')
 
@@ -63,7 +69,7 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>) => 
         calendarId: 'primary',
         conferenceDataVersion: 1,
         requestBody: {
-            summary: `Ignite call: ${name}`,
+            summary: `Platform MVP: ${name}`,
             description: observations,
             start: {
                 dateTime: schedulingDate.format()

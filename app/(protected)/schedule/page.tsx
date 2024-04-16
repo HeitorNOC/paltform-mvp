@@ -1,23 +1,19 @@
 
 import { GetStaticPaths, GetStaticProps } from "next";
-import { ScheduleForm } from "./scheduleForm/page";
+import ScheduleForm  from "./scheduleForm/page";
 import { NextSeo } from "next-seo";
 import { db } from "@/lib/db";
+import { currentUser } from "@/lib/auth";
+import { useIsClient } from "@/hooks/use-is-client";
+import Spinner from "@/components/spinner";
+import TimeIntervals from "./time-intervals/page";
 
-interface ScheduleProps {
-    user: {
-        name: string;
-        bio: string;
-        avatarUrl: string;
-    };
-}
+export default async function Schedule() {
+    const user = await currentUser();
 
-export default function Schedule({ user }: ScheduleProps) {
     return (
         <>
-            <NextSeo
-                title={`Agendar com ${user.name} | Ignite Call`}
-            />
+            
             <div style={{
                 maxWidth: 852,
                 padding: '0  $4',
@@ -36,7 +32,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
     };
 };
 
-/* export const getStaticProps: GetStaticProps = async ({ params }) => {
+ export const getStaticProps: GetStaticProps = async ({ params }) => {
+    console.log(params)
     const id = String(params?.id);
 
     const user = await db.user.findUnique({
@@ -59,4 +56,4 @@ export const getStaticPaths: GetStaticPaths = async () => {
         },
         revalidate: 60 * 60 * 24
     };
-}; */
+};

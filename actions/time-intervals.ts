@@ -1,3 +1,5 @@
+"use server"
+
 import { getUserById } from "@/data/user";
 import { currentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -23,7 +25,7 @@ export const timeIntervals = async (values: z.infer<typeof TimeIntervalsSchema>)
     }
 
     const { intervals } = validatedFields.data;
-
+    
     await Promise.all(intervals.map(interval => {
         return db.userTimeInterval.create({
             data: {

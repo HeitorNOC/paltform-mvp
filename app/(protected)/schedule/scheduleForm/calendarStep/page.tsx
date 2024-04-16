@@ -3,9 +3,12 @@
 import { startTransition, useEffect, useState } from "react";
 import { Calendar } from "@/components/calendar";
 import dayjs from "dayjs";
-import { useRouter } from "next/router";
-import { availability as availabilityFn } from "@/actions/availability";
+import 'dayjs/locale/pt-br'
 
+import { availability as availabilityFn } from "@/actions/availability";
+import Spinner from "@/components/spinner";
+
+dayjs.locale('pt-br')
 interface Availability {
     possibleTimes: number[];
     availableTimes: number[];
@@ -19,8 +22,7 @@ export function CalendarStep({ onSelectDateTime }: CalendarStepProps) {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [availability, setAvailability] = useState<Availability>()
     const [error, setError] = useState<string>("");
-
-    const router = useRouter();
+    const [loading, setLoading] = useState<boolean>(false)
 
     const isDateSelected = !!selectedDate;
 
@@ -30,25 +32,29 @@ export function CalendarStep({ onSelectDateTime }: CalendarStepProps) {
     const selectedDateWithoutTime = selectedDate ? dayjs(selectedDate).format("YYYY-MM-DD") : null;
 
     useEffect(() => {
-        onSubmit()
-    }, [])
+        if (!!selectedDate) {
+            onSelectDate()
+        }
+    }, [selectedDate])
 
-    const onSubmit = () => {
+    const onSelectDate = () => {
+        setLoading(true)
         startTransition(() => {
             try {
-                availabilityFn(selectedDateWithoutTime).then((data) => {
+                availabilityFn(selectedDateWithoutTime).then((data: any) => {
                     if (data?.error) {
                         setError(data.error);
                         return
+                    } else if (data.availableTimes && data.possibleTimes) {
+                        setAvailability({ availableTimes: data.availableTimes, possibleTimes: data.possibleTimes })
                     }
-
-                    setAvailability(data.success)
                 });
             } catch (err) {
                 setError(`Something went wrong! Error:${err}`);
             } finally {
                 setError("");
             }
+            setLoading(false)
         });
     };
 
@@ -59,29 +65,36 @@ export function CalendarStep({ onSelectDateTime }: CalendarStepProps) {
     }
 
     return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className={`grid p-0 relative mt-6 mb-0 mx-auto min-w-max ${selectedDate ? 'grid-cols-1 sm:grid-cols-2' : 'sm:w-540px grid-cols-1'}`}>
             <Calendar selectedDate={selectedDate} onDateSelected={setSelectedDate} />
 
             {isDateSelected && (
-                <div className="border-l border-gray-600 pl-6 overflow-y-scroll">
+                <div className={`sm:col-span-1 overflow-y-scroll px-2 ${selectedDate ? 'col-span-full ml-4' : 'hidden'}`}>
                     <div className="font-medium">
                         {weekDay} <span className="text-gray-200">{describedDate}</span>
                     </div>
 
                     <div className="grid grid-cols-1 gap-2 mt-3">
-                        {availability?.possibleTimes.map((hour: any) => (
-                            <button
-                                key={hour}
-                                onClick={() => handleSelectTime(hour)}
-                                disabled={!availability.availableTimes.includes(hour)}
-                                className="border-0 bg-gray-600 px-2 py-1 cursor-pointer text-gray-100 rounded-sm text-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-100"
-                            >
-                                {String(hour).padStart(2, "0")}:00h
-                            </button>
-                        ))}
+                        {
+                            loading ? <Spinner /> : (
+                                <>
+                                    {availability?.possibleTimes.map((hour: any) => (
+                                        <button
+                                            key={hour}
+                                            onClick={() => handleSelectTime(hour)}
+                                            className={`border-0 bg-gray-600 px-2 py-1 cursor-pointer text-gray-100 rounded-sm text-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-100 ${!availability.availableTimes.includes(hour) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={!availability.availableTimes.includes(hour)}
+                                        >
+                                            {String(hour).padStart(2, "0")}:00h
+                                        </button>
+                                    ))}
+                                </>
+                            )
+                        }
                     </div>
                 </div>
             )}
         </div>
+
     );
 }
