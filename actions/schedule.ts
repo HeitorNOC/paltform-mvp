@@ -29,8 +29,6 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>) => 
         return { error: "Invalid fields." };
     }
 
-    console.log('cheguei')
-
     const { date, email, name, observations } = validatedFields
 
     const schedulingDate = dayjs(date).startOf('hour')

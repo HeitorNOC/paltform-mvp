@@ -24,36 +24,3 @@ export default async function Schedule() {
         </>
     );
 }
-
-export const getStaticPaths: GetStaticPaths = async () => {
-    return {
-        paths: [],
-        fallback: 'blocking'
-    };
-};
-
- export const getStaticProps: GetStaticProps = async ({ params }) => {
-    console.log(params)
-    const id = String(params?.id);
-
-    const user = await db.user.findUnique({
-        where: {
-            id
-        }
-    });
-
-    if (!user) {
-        return {
-            notFound: true
-        };
-    }
-
-    return {
-        props: {
-            user: {
-                name: user.name,
-            }
-        },
-        revalidate: 60 * 60 * 24
-    };
-};
