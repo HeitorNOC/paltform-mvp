@@ -46,7 +46,7 @@ export default function SettingsPage() {
 
   const [isPending, startTransition] = useTransition();
 
-  const isClient = useIsClient();
+  //const isClient = useIsClient();
 
   const form = useForm<z.infer<typeof SettingsSchema>>({
     resolver: zodResolver(SettingsSchema),
@@ -83,7 +83,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (!isClient) return <Spinner />;
+  //if (!isClient) return <Spinner />;
 
   return (
     <Card className="w-auto shadow-sm">
@@ -220,6 +220,7 @@ export default function SettingsPage() {
                       <SelectContent>
                         <SelectItem value={"ADMIN"}>Admin</SelectItem>
                         <SelectItem value={"USER"}>User</SelectItem>
+                        <SelectItem value={"BARBER"}>Barber</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import { currentUser } from "@/lib/auth";
 import { useIsClient } from "@/hooks/use-is-client";
 import Spinner from "@/components/spinner";
-import TimeIntervals from "./time-intervals/page";
+import TimeIntervals from "../barber/time-intervals/page";
 
 export default async function Schedule() {
     const user = await currentUser();

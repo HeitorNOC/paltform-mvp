@@ -26,7 +26,7 @@ import FormSuccess from "../form-success";
 import { register } from "@/actions/register";
 
 const RegisterForm = () => {
-  const isClient = useIsClient();
+  //const isClient = useIsClient();
 
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -56,7 +56,7 @@ const RegisterForm = () => {
     setError("");
   };
 
-  if (!isClient) return <Spinner />;
+  //if (!isClient) return <Spinner />;
 
   return (
     <CardWrapper
