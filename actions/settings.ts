@@ -78,5 +78,13 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
     },
   });
 
+  await db.scheduling.deleteMany({
+    where: { user_id: dbUser.id }
+  })
+
+  await db.userTimeInterval.deleteMany({
+    where: { user_id: dbUser.id }
+  })
+
   return { success: "Settings Updated!" };
 };

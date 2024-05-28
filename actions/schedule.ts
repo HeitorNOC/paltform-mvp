@@ -9,7 +9,7 @@ import { google } from "googleapis"
 import { getGoogleOAuthToken } from "@/lib/google"
 import * as z from "zod";
 
-export const schedule = async (values: z.infer<typeof CreateSchedulingBody>) => {
+export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, barberID: string) => {
 
     const user = await currentUser();
     const validatedFields = CreateSchedulingBody.parse(values);

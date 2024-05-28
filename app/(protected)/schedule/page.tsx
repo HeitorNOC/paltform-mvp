@@ -1,26 +1,17 @@
+"use client"
 
-import { GetStaticPaths, GetStaticProps } from "next";
-import ScheduleForm  from "./scheduleForm/page";
-import { NextSeo } from "next-seo";
-import { db } from "@/lib/db";
-import { currentUser } from "@/lib/auth";
-import { useIsClient } from "@/hooks/use-is-client";
-import Spinner from "@/components/spinner";
-import TimeIntervals from "../barber/time-intervals/page";
+import { useRouter } from "next/navigation";
+import { Button } from "../../../components/ui/button";
 
-export default async function Schedule() {
-    const user = await currentUser();
+export default function Schedule() {
 
+    const router = useRouter()
+    
     return (
-        <>
-            
-            <div style={{
-                maxWidth: 852,
-                padding: '0  $4',
-                margin: "$20 auto $4",
-            }}>
-                <ScheduleForm />
-            </div>
-        </>
+        <div>
+            <h2>Deseja marcar um horário?</h2>
+            <p>Será necessário selecionar um barbeiro antes.</p>
+            <Button onClick={() => router.push('/schedule/barber')}>Selecionar Barbeiro</Button>
+        </div>
     );
 }

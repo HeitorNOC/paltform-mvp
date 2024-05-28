@@ -5,15 +5,15 @@ import { currentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import dayjs from 'dayjs'
 
-export const availability = async (date: any) => {
+export const availability = async (date: any, id: string) => {
   const user = await currentUser();
 
   if (!user) {
     return { error: "Unauthorized" };
   }
 
-  const dbUser = await getUserById(user.id);
-
+  const dbUser = await getUserById(id);
+ 
   if (!dbUser) {
     return { error: "Unauthorized" };
   }
@@ -31,11 +31,11 @@ export const availability = async (date: any) => {
 
   const userAvailability = await db.userTimeInterval.findFirst({
     where: {
-      user_id: user.id,
+      user_id: dbUser.id,
       week_day: referenceDate.get('day'),
     },
   })
-
+  console.log('userAvailability: ',userAvailability)
   if (!userAvailability) {
     return { possibleTimes: [], availableTimes: [] }
   }
@@ -56,7 +56,7 @@ export const availability = async (date: any) => {
       date: true,
     },
     where: {
-      user_id: user.id,
+      user_id: dbUser.id,
       date: {
         gte: referenceDate.set('hour', startHour).format("YYYY-MM-DDTHH:mm:ss[Z]"),
         lte: referenceDate.set('hour', endHour).format("YYYY-MM-DDTHH:mm:ss[Z]"),
@@ -73,6 +73,6 @@ export const availability = async (date: any) => {
 
     return !isTimeBlocked && !isTimeInPast
   })
-
+  
   return { possibleTimes, availableTimes }
 }

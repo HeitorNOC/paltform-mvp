@@ -21,9 +21,10 @@ type ConfirmFormData = z.infer<typeof ConfirmFormSchema>
 interface ConfirmStepProps {
   schedulingDate: Date
   onCancelConfirmation: () => void
+  barberID: string
 }
 
-export function ConfirmStep({ schedulingDate, onCancelConfirmation }: ConfirmStepProps) {
+export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: ConfirmStepProps) {
   const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm<ConfirmFormData>({
     resolver: zodResolver(ConfirmFormSchema)
   })
@@ -46,7 +47,7 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation }: ConfirmSte
 
     startTransition(() => {
       try {
-        scheduleFn(props).then((data: any) => {
+        scheduleFn(props, barberID).then((data: any) => {
           if (data?.error) {
             setError(data.error)
           } else if (data.success) {

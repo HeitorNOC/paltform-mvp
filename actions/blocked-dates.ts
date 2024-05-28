@@ -4,14 +4,14 @@ import { getUserById } from "@/data/user";
 import { currentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-export const blockedDates = async (year: number, month: number) => {
+export const blockedDates = async (year: number, month: number, barberID: string) => {
   const user = await currentUser();
 
   if (!user) {
     return { error: "Unauthorized" };
   }
 
-  const dbUser = await getUserById(user.id);
+  const dbUser = await getUserById(barberID);
 
   if (!dbUser) {
     return { error: "Unauthorized" };
@@ -26,7 +26,7 @@ export const blockedDates = async (year: number, month: number) => {
       week_day: true,
     },
     where: {
-      user_id: user.id,
+      user_id: dbUser.id,
     },
   })
 
@@ -38,7 +38,7 @@ export const blockedDates = async (year: number, month: number) => {
 
   const haveSomeScheule = await db.scheduling.findFirst({
     where: {
-      user_id: user.id
+      user_id: dbUser.id
     }
   })
 
@@ -53,7 +53,7 @@ export const blockedDates = async (year: number, month: number) => {
     FROM schedulings S
     LEFT JOIN user_time_intervals UTI
         ON UTI.week_day = CAST((STRFTIME('%w', DATE(S.date, '+1 day'))) AS INTEGER)
-    WHERE S.user_id = ${user.id}
+    WHERE S.user_id = ${dbUser.id}
         AND STRFTIME('%Y', S.date) = ${year}
         AND STRFTIME('%m', S.date) = ${month}
     GROUP BY STRFTIME('%d', S.date), ((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60)

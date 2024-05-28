@@ -16,9 +16,10 @@ interface Availability {
 
 interface CalendarStepProps {
     onSelectDateTime: (date: Date) => void;
+    barberID: string
 }
 
-export function CalendarStep({ onSelectDateTime }: CalendarStepProps) {
+export function CalendarStep({ onSelectDateTime, barberID }: CalendarStepProps) {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [availability, setAvailability] = useState<Availability>()
     const [error, setError] = useState<string>("");
@@ -28,25 +29,23 @@ export function CalendarStep({ onSelectDateTime }: CalendarStepProps) {
 
     const weekDay = selectedDate ? dayjs(selectedDate).format("dddd") : null;
     const describedDate = selectedDate ? dayjs(selectedDate).format("DD[ de ]MMMM") : null;
-
     const selectedDateWithoutTime = selectedDate ? dayjs(selectedDate).format("YYYY-MM-DD") : null;
-
     useEffect(() => {
         if (!!selectedDate) {
             onSelectDate()
         }
     }, [selectedDate])
-
     const onSelectDate = () => {
         setLoading(true)
         startTransition(() => {
             try {
-                availabilityFn(selectedDateWithoutTime).then((data: any) => {
+                availabilityFn(selectedDateWithoutTime, barberID).then((data: any) => {
                     if (data?.error) {
                         setError(data.error);
                         return
                     } else if (data.availableTimes && data.possibleTimes) {
                         setAvailability({ availableTimes: data.availableTimes, possibleTimes: data.possibleTimes })
+                        console.log('oi: ',data)
                     }
                 });
             } catch (err) {
@@ -66,7 +65,7 @@ export function CalendarStep({ onSelectDateTime }: CalendarStepProps) {
 
     return (
         <div className={`grid p-0 relative mt-6 mb-0 mx-auto min-w-max ${selectedDate ? 'grid-cols-1 sm:grid-cols-2' : 'sm:w-540px grid-cols-1'}`}>
-            <Calendar selectedDate={selectedDate} onDateSelected={setSelectedDate} />
+            <Calendar selectedDate={selectedDate} onDateSelected={setSelectedDate} barberID={barberID}/>
 
             {isDateSelected && (
                 <div className={`sm:col-span-1 overflow-y-scroll px-2 ${selectedDate ? 'col-span-full ml-4' : 'hidden'}`}>

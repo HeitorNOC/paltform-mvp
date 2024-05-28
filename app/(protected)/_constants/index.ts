@@ -34,3 +34,9 @@ export const BARBER_LINKS = [
     path: "/barber/time-intervals",
   },
 ]
+
+export const ROLES = {
+  BARBER: "BARBER",
+  USER: "USER",
+  ADMIN: "ADMIN"
+}

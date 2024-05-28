@@ -26,6 +26,10 @@ export const timeIntervals = async (values: z.infer<typeof TimeIntervalsSchema>)
 
     const { intervals } = validatedFields.data;
     
+    await db.userTimeInterval.deleteMany({
+        where: { user_id: dbUser.id }
+    })
+
     await Promise.all(intervals.map(interval => {
         return db.userTimeInterval.create({
             data: {

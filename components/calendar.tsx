@@ -30,9 +30,10 @@ interface BlockedDates {
 interface CalendarProps {
     selectedDate: Date | null;
     onDateSelected: (date: Date) => void;
+    barberID: string
 }
 
-export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
+export function Calendar({ selectedDate, onDateSelected, barberID }: CalendarProps) {
     const [currentDate, setCurrentDate] = useState(() => {
         return dayjs().set("date", 1);
     });
@@ -47,7 +48,7 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
     const createComponent = () => {
         startTransition(() => {
             try {
-                blockedDatesFn(currentDate.get('year'), currentDate.get('month')).then((data) => {
+                blockedDatesFn(currentDate.get('year'), currentDate.get('month'), barberID).then((data) => {
                     if (data?.error) {
                         setError(data.error);
                         return
