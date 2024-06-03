@@ -97,9 +97,8 @@ model Scheduling {
   observations String?
   created_at   DateTime @default(now())
   user         User     @relation(fields: [user_id], references: [id])
-  //barber       User     @relation(fields: [barber_id], references: [id]) 
   user_id      String
-  barber_id    String
+  user_phone   String?
 
   @@index([user_id])
   @@map("schedulings")

@@ -39,13 +39,14 @@ export function CalendarStep({ onSelectDateTime, barberID }: CalendarStepProps) 
         setLoading(true)
         startTransition(() => {
             try {
-                availabilityFn(selectedDateWithoutTime, barberID).then((data: any) => {
+                const decodedURI = decodeURIComponent(barberID)
+                const decodedID = atob(decodedURI)
+                availabilityFn(selectedDateWithoutTime, decodedID).then((data: any) => {
                     if (data?.error) {
                         setError(data.error);
                         return
                     } else if (data.availableTimes && data.possibleTimes) {
                         setAvailability({ availableTimes: data.availableTimes, possibleTimes: data.possibleTimes })
-                        console.log('oi: ',data)
                     }
                 });
             } catch (err) {

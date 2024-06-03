@@ -17,7 +17,7 @@ export const {
   pages: {
     signIn: "/auth/login",
     error: "/auth/error",
-    newUser: "/settings"
+    newUser: "/"
   },
   events: {
     async linkAccount({ user }) {

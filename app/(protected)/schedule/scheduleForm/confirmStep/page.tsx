@@ -34,20 +34,21 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
   const router = useRouter()
 
   const handleConfirmScheduling = (values: ConfirmFormData) => {
-    const { name, email, observations } = values
+    const { phone, observations } = values
 
     const formattedDate = dayjs(schedulingDate).format("YYYY-MM-DDTHH:mm:ss[Z]");
 
     const props = {
-      name,
-      email,
       observations: observations ? observations : '',
+      phone,
       date: formattedDate
     };
 
     startTransition(() => {
       try {
-        scheduleFn(props, barberID).then((data: any) => {
+        const decodedURI = decodeURIComponent(barberID)
+        const decodedID = atob(decodedURI)
+        scheduleFn(props, decodedID).then((data: any) => {
           if (data?.error) {
             setError(data.error)
           } else if (data.success) {
@@ -78,19 +79,12 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
       </div>
 
       <form onSubmit={handleSubmit(handleConfirmScheduling)} className="flex flex-col space-y-4">
-        <div className="flex flex-col space-y-2">
-          <span className="text-sm">Nome completo</span>
-          <Input placeholder="Seu nome" {...register('name')} />
-          {errors.name && (
-            <span className="text-sm text-red-500">{errors.name.message}</span>
-          )}
-        </div>
 
         <div className="flex flex-col space-y-2">
-          <span className="text-sm">Endereço de e-mail</span>
-          <Input type="email" placeholder="johndoe@example.com" {...register('email')} />
-          {errors.email && (
-            <span className="text-sm text-red-500">{errors.email.message}</span>
+          <span className="text-sm">Telefone</span>
+          <Input type="tel" {...register('phone')} />
+          {errors.phone && (
+            <span className="text-sm text-red-500">{errors.phone.message}</span>
           )}
         </div>
 

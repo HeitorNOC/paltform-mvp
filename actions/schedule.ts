@@ -19,19 +19,31 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, bar
     }
 
     const dbUser = await getUserById(user.id);
+    const dbBarber = await getUserById(barberID)
 
     if (!dbUser) {
         return { error: "Unauthorized" };
     }
 
+    if (!dbBarber) {
+        return { error: "Barber not found" };
+    }
 
     if (!validatedFields) {
         return { error: "Invalid fields." };
     }
 
-    const { date, email, name, observations } = validatedFields
+    if (!dbBarber.name || !dbBarber.email) {
+        return { error: "Invalid Barber Fields" }
+    }
 
-    const schedulingDate = dayjs(date).startOf('hour')
+    if (!dbUser.name || !dbUser.email) {
+        return { error: "Invalid User Fields" }
+    }
+
+    const { date, phone, observations } = validatedFields
+    const utcDate = dayjs(date).subtract(dayjs(date).utcOffset(), 'minute');
+    const schedulingDate = dayjs(utcDate).startOf('hour')
 
     if (schedulingDate.isBefore(new Date())) {
         return { error: "Date is in the past." }
@@ -48,13 +60,25 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, bar
         return { error: "There is another scheduling at the same time" }
     }
 
-    const scheduling = await db.scheduling.create({
+    await db.scheduling.create({
         data: {
-            name,
-            email,
+            name: dbBarber.name,
+            email: dbBarber.email,
             observations,
             date: schedulingDate.toDate(),
-            user_id: user.id
+            user_phone: phone,
+            user_id: dbUser.id,
+        }
+    })
+
+    await db.scheduling.create({
+        data: {
+            name: dbUser.name,
+            email: dbUser.email,
+            observations,
+            date: schedulingDate.toDate(),
+            user_phone: phone,
+            user_id: dbBarber.id
         }
     })
 
@@ -63,31 +87,25 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, bar
         auth: await getGoogleOAuthToken(user.id)
     })
 
-    await calendar.events.insert({
-        calendarId: 'primary',
-        conferenceDataVersion: 1,
-        requestBody: {
-            summary: `Platform MVP: ${name}`,
-            description: observations,
-            start: {
-                dateTime: schedulingDate.format()
-            },
-            end: {
-                dateTime: schedulingDate.add(1, 'hour').format()
-            },
-            attendees: [
-                { email, displayName: name }
-            ],
-            conferenceData: {
-                createRequest: {
-                    requestId: scheduling.id,
-                    conferenceSolutionKey: {
-                        type: 'hangoutsMeet'
-                    }
-                }
-            },
-        }
-    })
+    if (calendar) {
+        await calendar.events.insert({
+            calendarId: 'primary',
+            conferenceDataVersion: 1,
+            requestBody: {
+                summary: `Platform MVP: ${user.name}`,
+                description: observations,
+                start: {
+                    dateTime: schedulingDate.format()
+                },
+                end: {
+                    dateTime: schedulingDate.add(1, 'hour').format()
+                },
+                attendees: [
+                    { email: dbBarber.email, displayName: dbBarber.name }
+                ],
+            }
+        })
+    }
 
     return { success: "Schedule Created!" }
 }

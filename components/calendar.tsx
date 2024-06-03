@@ -48,7 +48,9 @@ export function Calendar({ selectedDate, onDateSelected, barberID }: CalendarPro
     const createComponent = () => {
         startTransition(() => {
             try {
-                blockedDatesFn(currentDate.get('year'), currentDate.get('month'), barberID).then((data) => {
+                const decodedURI = decodeURIComponent(barberID)
+                const decodedID = atob(decodedURI)
+                blockedDatesFn(currentDate.get('year'), currentDate.get('month'), decodedID).then((data) => {
                     if (data?.error) {
                         setError(data.error);
                         return

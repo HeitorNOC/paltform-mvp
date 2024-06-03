@@ -1,6 +1,7 @@
 import ScheduleForm from "../../scheduleForm/page";
 
 export default async function Calendar({params}: any) {
+    
     return (
         <>
             <div style={{

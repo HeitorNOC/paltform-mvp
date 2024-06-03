@@ -35,7 +35,7 @@ export const availability = async (date: any, id: string) => {
       week_day: referenceDate.get('day'),
     },
   })
-  console.log('userAvailability: ',userAvailability)
+ 
   if (!userAvailability) {
     return { possibleTimes: [], availableTimes: [] }
   }

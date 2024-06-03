@@ -1,4 +1,5 @@
 import { convertTimeStringToMinutes } from "@/utils/convert-time-string-to-minutes";
+import parsePhoneNumberFromString from 'libphonenumber-js';
 import * as z from "zod";
 
 interface UserData {
@@ -120,15 +121,29 @@ export const TimeIntervalsSchema = z.object({
 });
 
 export const CreateSchedulingBody = z.object({
-  name: z.string(),
-  email: z.string().email(),
+  phone: z.string(),
   observations: z.string(),
   date: z.string().datetime()
 });
 
 export const ConfirmFormSchema = z.object({
-  name: z.string().min(3, { message: 'O nome precisa de no mínimo 3 caracteres.' }),
-  email: z.string().email({ message: 'Digite um e-mail válido.' }),
+  phone: z.string().transform((arg, ctx) => {
+    const phone = parsePhoneNumberFromString(arg, {
+      defaultCountry: 'BR',
+      
+      extract: false,
+    });
+  
+    if (phone && phone.isValid()) {
+      return phone.number;
+    }
+  
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Invalid phone number',
+    });
+    return z.NEVER;
+  }),
   observations: z.string().nullable(),
 });
 
