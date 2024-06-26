@@ -145,6 +145,7 @@ export const ConfirmFormSchema = z.object({
     return z.NEVER;
   }),
   observations: z.string().nullable(),
+  email: z.string().email({ message: 'Digite um e-mail válido.' }),
 });
 
 export const TimeIntervalsPageSchema = z.object({
