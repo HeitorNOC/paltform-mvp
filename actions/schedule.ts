@@ -68,6 +68,9 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, bar
             date: schedulingDate.toDate(),
             user_phone: phone,
             user_id: dbUser.id,
+            payment_method: "money",
+            payment_status: "approved",
+            price: 30
         }
     })
 
@@ -78,7 +81,10 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, bar
             observations,
             date: schedulingDate.toDate(),
             user_phone: phone,
-            user_id: dbBarber.id
+            user_id: dbBarber.id,
+            payment_method: "money",
+            payment_status: "approved",
+            price: 30
         }
     })
 

@@ -9,7 +9,7 @@ import { ConfirmFormSchema } from "@/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { schedule as scheduleFn } from "@/actions/schedule";
 import { Toaster } from "@/components/ui/sonner";
 import FormError from "@/components/form-error";
@@ -19,6 +19,7 @@ import './confirmStep.css'
 import { toast } from "sonner";
 import { preferenceID } from "../../../../../actions/preference-id";
 import { Wallet, initMercadoPago } from "@mercadopago/sdk-react";
+import Spinner from "../../../../../components/spinner";
 
 type ConfirmFormData = z.infer<typeof ConfirmFormSchema>
 
@@ -40,12 +41,7 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
 
   initMercadoPago('');
 
-  const handleConfirmScheduling = async (values: ConfirmFormData) => {
-    if (!values.email) {
-      toast.error("O email tem que ser informado.")
-      return
-    }
-
+  useEffect(() => {
     startTransition(() => {
       try {
         preferenceID("Degrade", 1, 30).then((data: any) => {
@@ -59,6 +55,15 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
         setError(`Something went wrong! Error:${error}`);
       }
     })
+  }, [])
+
+  const handleConfirmScheduling = async (values: ConfirmFormData) => {
+    if (!values.email) {
+      toast.error("O email tem que ser informado.")
+      return
+    }
+
+    
 
     const { phone, observations } = values
 
@@ -91,7 +96,7 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
   const describedDate = dayjs(schedulingDate).format('DD[ de ]MMMM[ de ]YYYY')
   const describedTime = dayjs(schedulingDate).format('HH:mm[h]')
 
-  return (
+  return !preferenceStateID ? <Spinner/> : (
     <div className="flex flex-col gap-4 space-y-4 mx-0">
       <div>
         <div className="flex items-center gap-4 border-b border-gray-600">
@@ -131,48 +136,29 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
           {success && <FormSuccess message={success} />}
 
           <div className="flex flex-col space-y-2 mt-3">
-            <div className="payment-methods">
-              <p>Selecione o método de pagamento:</p>
-              <div className="payment-buttons">
-                <Button
-                  type="button"
-                  onClick={() => setPaymentMethod(paymentMethod === "card" ? "" : "card")}
-                  className={`payment-button ${paymentMethod === "card" ? "selected" : ""}`}
-                >
-                  <CreditCard size={24} />
-                  <span>Cartão de Crédito ou Débito</span>
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => setPaymentMethod(paymentMethod === "pix" ? "" : "pix")}
-                  className={`payment-button ${paymentMethod === "pix" ? "selected" : ""}`}
-                >
-                  <QrCode size={24} />
-                  <span>PIX</span>
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => setPaymentMethod(paymentMethod === "cash" ? "" : "cash")}
-                  className={`payment-button ${paymentMethod === "cash" ? "selected" : ""}`}
-                >
-                  <Money size={24} />
-                  <span>Dinheiro</span>
-                </Button>
-              </div>
-            </div>
 
-            <div className="flex justify-start gap-2 mt-2">
-              <Button type="submit" disabled={false}>Confirmar</Button>
-              <Button type="button" variant="outline" onClick={onCancelConfirmation}>Cancelar</Button>
-            </div>
           </div>
+            
+          <div className="paymentOpitions">
+            <div className="wallet">
+
+              <Wallet initialization={{ preferenceId: preferenceStateID as string }} customization={{ texts: { valueProp: 'smart_option' } }} locale="pt-BR" />
+            </div>
+            <p>Ou</p>
+            <Button className="payment-button">
+              Dinheiro
+            </Button>
+
+
+          </div>
+
+
+
+
+
         </form>
 
-        {
-          preferenceStateID && (
-            <Wallet initialization={{ preferenceId: preferenceStateID }} customization={{ texts: { valueProp: 'smart_option' } }} locale="pt-BR" />
-          )
-        }
+
       </div>
     </div >
   )
