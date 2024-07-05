@@ -15,6 +15,11 @@ export const getUserById = async (id: string) => {
   try {
     const user = await db.user.findUnique({
       where: { id },
+      include: { accounts: {
+        where: {
+          userId: id
+        }
+      } }
     });
     return user;
   } catch {

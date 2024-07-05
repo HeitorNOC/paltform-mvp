@@ -29,9 +29,9 @@ export const {
   },
   callbacks: {
     async signIn({ user, account }) {
-      if (!account?.scope?.includes('https://www.googleapis.com/auth/calendar')) {
+      /* if (!account?.scope?.includes('https://www.googleapis.com/auth/calendar')) {
         return '/register/connect-calendar/?error=permissions'
-      }
+      } */
       // Allow OAuth without email verification
       if (account?.provider !== "credentials") return true;
 

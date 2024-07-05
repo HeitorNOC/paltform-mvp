@@ -20,11 +20,9 @@ export const preferenceID = async (title: string, quantity: number, price: numbe
 
     if (!title || !quantity || !price) return { error: "Invalid Fields" };
 
-    
-    
     try {
         const client = new MercadoPagoConfig({ accessToken: '' });
-        console.log("client: ", client)
+
         const id = randomUUID()
         const body = {
             items: [
@@ -45,10 +43,7 @@ export const preferenceID = async (title: string, quantity: number, price: numbe
         }
 
         const preference = new Preference(client)
-        console.log('preference: ', preference)
         const result = await preference.create({ body })
-        console.log('result: ', result)
-
         if (result.id) return { success: result.id }
     } catch (error) {
         console.log(error)

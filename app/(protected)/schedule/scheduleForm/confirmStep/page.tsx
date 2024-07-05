@@ -37,33 +37,14 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
-  const [preferenceStateID, setPreferenceStateID] = useState<string>()
 
-  initMercadoPago('');
-
-  useEffect(() => {
-    startTransition(() => {
-      try {
-        preferenceID("Degrade", 1, 30).then((data: any) => {
-          if (data?.error) {
-            setError(data.error)
-          } else if (data?.success) {
-            setPreferenceStateID(data.success)
-          }
-        })
-      } catch (error) {
-        setError(`Something went wrong! Error:${error}`);
-      }
-    })
-  }, [])
+  const router = useRouter()
 
   const handleConfirmScheduling = async (values: ConfirmFormData) => {
     if (!values.email) {
       toast.error("O email tem que ser informado.")
       return
     }
-
-    
 
     const { phone, observations } = values
 
@@ -75,7 +56,7 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
       date: formattedDate
     };
 
-    /* startTransition(() => {
+    startTransition(() => {
       try {
         const decodedURI = decodeURIComponent(barberID)
         const decodedID = atob(decodedURI)
@@ -83,20 +64,19 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
           if (data?.error) {
             setError(data.error)
           } else if (data.success) {
-            setSuccess(data.success)
-            router.push('/')
+            router.push('/schedule/calendar/payment/' + data.success)
           }
         })
       } catch (err) {
         setError(`Something went wrong! Error:${err}`);
       }
-    }) */
+    })
   }
 
   const describedDate = dayjs(schedulingDate).format('DD[ de ]MMMM[ de ]YYYY')
   const describedTime = dayjs(schedulingDate).format('HH:mm[h]')
 
-  return !preferenceStateID ? <Spinner/> : (
+  return (
     <div className="flex flex-col gap-4 space-y-4 mx-0">
       <div>
         <div className="flex items-center gap-4 border-b border-gray-600">
@@ -138,26 +118,11 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
           <div className="flex flex-col space-y-2 mt-3">
 
           </div>
-            
-          <div className="paymentOpitions">
-            <div className="wallet">
-
-              <Wallet initialization={{ preferenceId: preferenceStateID as string }} customization={{ texts: { valueProp: 'smart_option' } }} locale="pt-BR" />
-            </div>
-            <p>Ou</p>
-            <Button className="payment-button">
-              Dinheiro
-            </Button>
-
-
+          <div className="flex justify-end gap-2 mt-2">
+            <Button type="button" variant="outline" onClick={onCancelConfirmation}>Cancelar</Button>
+            <Button type="submit" disabled={isSubmitting}>Confirmar</Button>
           </div>
-
-
-
-
-
         </form>
-
 
       </div>
     </div >

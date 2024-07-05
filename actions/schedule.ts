@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import { google } from "googleapis"
 import { getGoogleOAuthToken } from "@/lib/google"
 import * as z from "zod";
+import { OAuth2Client } from "google-auth-library";
 
 export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, barberID: string) => {
 
@@ -60,7 +61,7 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, bar
         return { error: "There is another scheduling at the same time" }
     }
 
-    await db.scheduling.create({
+    const result = await db.scheduling.create({
         data: {
             name: dbBarber.name,
             email: dbBarber.email,
@@ -88,30 +89,48 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, bar
         }
     })
 
-    const calendar = google.calendar({
-        version: 'v3',
-        auth: await getGoogleOAuthToken(user.id)
-    })
+    const haveGoogleAccount = dbUser.accounts.some(account => account.provider === "google");
+   
+    if (haveGoogleAccount) {
+        try {
+            const auth = await getGoogleOAuthToken(user.id);
+            const calendar = google.calendar({ version: 'v3', auth });
 
-    if (calendar) {
-        await calendar.events.insert({
-            calendarId: 'primary',
-            conferenceDataVersion: 1,
-            requestBody: {
-                summary: `Platform MVP: ${user.name}`,
-                description: observations,
-                start: {
-                    dateTime: schedulingDate.format()
-                },
-                end: {
-                    dateTime: schedulingDate.add(1, 'hour').format()
-                },
-                attendees: [
-                    { email: dbBarber.email, displayName: dbBarber.name }
-                ],
+            await calendar.events.list({
+                calendarId: 'primary',
+                maxResults: 1
+            });
+
+            await calendar.events.insert({
+                calendarId: 'primary',
+                conferenceDataVersion: 1,
+                requestBody: {
+                    summary: `Agendamento para ${user.name}`,
+                    description: observations,
+                    start: {
+                        dateTime: schedulingDate.format(),
+                        timeZone: 'America/Sao_Paulo'
+                    },
+                    end: {
+                        dateTime: schedulingDate.add(1, 'hour').format(),
+                        timeZone: 'America/Sao_Paulo'
+                    },
+                    attendees: [{ email: dbBarber.email, displayName: dbBarber.name }]
+                }
+            });
+        } catch (error: unknown) {
+            if (typeof error === 'object' && error !== null && 'code' in error) {
+                const gError = error as { code: number; message: string };
+                if (gError.code === 403) {
+                    console.log('Permissões insuficientes para adicionar ao Google Calendar. Continuando sem adicionar.');
+                } else {
+                    console.error('Erro ao acessar o Google Calendar:', gError.message);
+                }
+            } else {
+                console.error('Erro desconhecido:', error);
             }
-        })
-    }
+        }
+    }    
 
-    return { success: "Schedule Created!" }
+    return { success: result.id }
 }
