@@ -12,7 +12,7 @@ export default function ScheduleForm({ barberID: id }: any) {
   }
 
   if (selectedDateTime) {
-    return <ConfirmStep schedulingDate={selectedDateTime} onCancelConfirmation={handleClearSelectedDateTime} barberID={id}/>
+    return <ConfirmStep schedulingDate={selectedDateTime} onCancelConfirmation={handleClearSelectedDateTime} barberID={id} itemID={30}/>
   } 
 
    return <CalendarStep onSelectDateTime={setSelectedDateTime} barberID={id}/> 

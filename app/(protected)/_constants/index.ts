@@ -40,3 +40,20 @@ export const ROLES = {
   USER: "USER",
   ADMIN: "ADMIN"
 }
+
+export interface Link {
+  title: string;
+  path: string;
+}
+
+export interface RoleLinks {
+  ADMIN: Link[];
+  BARBER: Link[];
+  USER: Link[];
+}
+
+export const links: RoleLinks = {
+  ADMIN: ADMIN_LINKS,
+  BARBER: BARBER_LINKS,
+  USER: USER_LINKS
+};

@@ -101,7 +101,7 @@ model Scheduling {
   user_phone     String?
   price          Decimal  @default(0)
   payment_method String   @default("cash")
-  payment_status String   @default("handling")
+  payment_status String   @default("pending")
 
   @@index([user_id])
   @@map("schedulings")

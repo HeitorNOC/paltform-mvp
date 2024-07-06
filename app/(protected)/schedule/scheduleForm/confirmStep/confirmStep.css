@@ -1,69 +1,122 @@
+/* confirmStep.css */
+
 .confirm-step-container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .date-time {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .date-time-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .payment-methods {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .payment-buttons {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .payment-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    background-color: #030712;
-    color: #ffffff;
-  }
-  
-  .payment-button.selected {
-    background-color: #ffffff;
-    color: #030712;
-  }
-  
-  .actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-  }
-  
-  .selected-payment {
-    margin-top: 16px;
-    font-weight: bold;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.date-time {
+  display: flex;
+  justify-content: space-between;
+}
+
+.date-time-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: white;
+}
+
+.payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.payment-cards {
+  display: flex;
+  gap: 16px;
+}
+
+.payment-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  background-color: transparent;
+  color: white;
+  flex: 1;
+  position: relative;
+}
+
+.payment-card.selected {
+  background-color: white;
+  color: black;
+}
+
+.info-icon-container {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  padding: 8px;
+  background-color: #09090b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.info-icon {
+  color: inherit;
+  z-index: 3;
+}
+
+.tooltip-content {
+  background-color: black;
+  color: white;
+}
+
+.selected-icon {
+  background-color: #09090b;
+  color: white;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.actions button {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.actions button[type="submit"] {
+  background-color: #4CAF50; /* Green */
+  color: white;
+}
+
+.actions button[type="submit"]:disabled {
+  background-color: #888888; /* Gray */
+  cursor: not-allowed;
+}
+
+.actions button[type="button"] {
+  background-color: #f44336; /* Red */
+  color: white;
+}
