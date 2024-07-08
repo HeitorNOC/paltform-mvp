@@ -5,7 +5,7 @@ import { getUserById } from "../data/user";
 import { currentUser } from "../lib/auth";
 import { randomUUID } from "crypto";
 
-export const preferenceID = async (title: string, quantity: number, price: number) => {
+export const preferenceID = async (title: string, quantity: number, price: number, scheduleID: string) => {
     const user = await currentUser();
 
     if (!user) {
@@ -23,11 +23,10 @@ export const preferenceID = async (title: string, quantity: number, price: numbe
     try {
         const client = new MercadoPagoConfig({ accessToken: '' });
 
-        const id = randomUUID()
         const body = {
             items: [
                 {
-                    id,
+                    id: scheduleID,
                     title,
                     quantity,
                     unit_price: price,
@@ -35,11 +34,14 @@ export const preferenceID = async (title: string, quantity: number, price: numbe
                 }
             ],
             back_urls: {
-                success: "https://youtube.com",
-                failure: "https://youtube.com",
-                pending: "https://youtube.com"
+                success: "http://localhost:3000/schedule/calendar/payment/success",
+                failure: "http://localhost:3000/schedule/calendar/payment/failure",
+                pending: "http://localhost:3000/schedule/calendar/payment/pending"
             },
+
             auto_return: "approved",
+            notification_url: "http://localhost:3000/api/webhook",
+            external_reference: scheduleID
         }
 
         const preference = new Preference(client)

@@ -18,7 +18,7 @@ export default function Payment({ params }: any) {
     useEffect(() => {
         startTransition(() => {
             try {
-                preferenceID("Degrade", 1, 30).then((data: any) => {
+                preferenceID("Degrade", 1, 30, scheduleID).then((data: any) => {
                     if (data?.error) {
                         setError(data.error)
                     } else if (data?.success) {
