@@ -46,8 +46,7 @@ export default function ChooseBarber() {
 
     const handleNavigateToCalendar= (barberID: string) => {
         const encodedBarberID = btoa(barberID)
-        
-        router.push(`/schedule/calendar/${encodedBarberID}`)
+        router.push(`/schedule/barber/product/${encodedBarberID}`)
     }
 
     return loading ? <Spinner /> : (

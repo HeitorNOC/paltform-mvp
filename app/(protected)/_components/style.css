@@ -1,5 +1,5 @@
 .sidebar {
-    width: 80px; /* Reduced width */
+    /* width: 80px; */ /* Reduced width */
     height: 100vh;
     position: fixed;
     left: 0;
@@ -7,7 +7,7 @@
     background-color: #333;
     color: white;
     overflow-y: auto;
-    z-index: 1000;
+    /* z-index: 1000; */
     display: flex;
     flex-direction: column;
     align-items: center; /* Center align items */
@@ -17,7 +17,7 @@
     display: flex;
     flex-direction: column;
     align-items: center; /* Center align items */
-    padding: 10px 0; /* Vertical padding for more compact links */
+    padding: 10px 20px; /* Vertical padding for more compact links */
     text-decoration: none;
     color: white;
     width: 100%; /* Make the link occupy full width */
@@ -51,5 +51,14 @@
       width: 0;
       overflow: hidden;
     }
+  }
+
+  .button-user {
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    z-index: 1001;
   }
   

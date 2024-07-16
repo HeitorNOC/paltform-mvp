@@ -26,9 +26,10 @@ interface ConfirmStepProps {
   onCancelConfirmation: () => void
   barberID: string
   itemID: number
+  productID: string
 }
 
-export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: ConfirmStepProps) {
+export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID, productID }: ConfirmStepProps) {
   const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm<ConfirmFormData>({
     resolver: zodResolver(ConfirmFormSchema)
   });
@@ -64,7 +65,7 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation, barberID }: 
       try {
         const decodedURI = decodeURIComponent(barberID);
         const decodedID = atob(decodedURI);
-        scheduleFn(props, decodedID).then((data: any) => {
+        scheduleFn(props, decodedID, productID).then((data: any) => {
           if (data?.error) {
             setError(data.error);
           } else if (data.success) {

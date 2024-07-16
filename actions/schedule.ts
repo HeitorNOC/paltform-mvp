@@ -10,7 +10,7 @@ import { getGoogleOAuthToken } from "@/lib/google"
 import * as z from "zod";
 import { OAuth2Client } from "google-auth-library";
 
-export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, barberID: string) => {
+export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, barberID: string, haircutID: string) => {
 
     const user = await currentUser();
     const validatedFields = CreateSchedulingBody.parse(values);
@@ -71,7 +71,6 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, bar
             user_id: dbUser.id,
             payment_method: "money",
             payment_status: "approved",
-            price: 30
         }
     })
 
@@ -85,7 +84,6 @@ export const schedule = async (values: z.infer<typeof CreateSchedulingBody>, bar
             user_id: dbBarber.id,
             payment_method: "money",
             payment_status: "approved",
-            price: 30
         }
     })
 

@@ -8,6 +8,22 @@ export const USER_LINKS = [
     path: "/schedule",
   },
   {
+    title: "Barbers",
+    path: "/barbers",
+  },
+  {
+    title: "Cuts",
+    path: "/cuts",
+  },
+  {
+    title: "Courses",
+    path: "/courses",
+  },
+  {
+    title: "History",
+    path: "/history",
+  },
+  {
     title: "Settings",
     path: "/settings",
   },
@@ -19,6 +35,26 @@ export const ADMIN_LINKS = [
     path: "/admin",
   },
   {
+    title: "Catalog",
+    path: "/catalog",
+  },
+  {
+    title: "Sales",
+    path: "/sales",
+  },
+  {
+    title: "Purchases",
+    path: "/purchases",
+  },
+  {
+    title: "Finance",
+    path: "/finance",
+  },
+  {
+    title: "Reports",
+    path: "/reports",
+  },
+  {
     title: "Settings",
     path: "/settings",
   },
@@ -26,12 +62,36 @@ export const ADMIN_LINKS = [
 
 export const BARBER_LINKS = [
   {
-    title: "Settings",
-    path: "/settings",
+    title: "Barber",
+    path: "/client",
   },
   {
-    title: "Time Intervals",
+    title: "Time",
     path: "/barber/time-intervals",
+  },
+  {
+    title: "Catalog",
+    path: "/catalog",
+  },
+  {
+    title: "Sales",
+    path: "/sales",
+  },
+  {
+    title: "Purchases",
+    path: "/purchases",
+  },
+  {
+    title: "Finance",
+    path: "/finance",
+  },
+  {
+    title: "Reports",
+    path: "/reports",
+  },
+  {
+    title: "Settings",
+    path: "/settings",
   },
 ]
 

@@ -19,7 +19,11 @@ model User {
   isTwoFactorEnabled    Boolean                @default(false)
   twoFactorConfirmation TwoFactorConfirmation?
   timeIntervals         UserTimeInterval[]
-  Scheduling            Scheduling[]
+  schedulings           Scheduling[]
+  carts                 Cart[]
+  UserRepository        UserRepository[]
+
+  @@index([role])
 }
 
 model Account {
@@ -99,10 +103,57 @@ model Scheduling {
   user           User     @relation(fields: [user_id], references: [id])
   user_id        String
   user_phone     String?
-  price          Decimal  @default(0)
   payment_method String   @default("cash")
   payment_status String   @default("pending")
+  cartId         String?
+  cart           Cart?    @relation(fields: [cartId], references: [id])
 
   @@index([user_id])
   @@map("schedulings")
+}
+
+model Product {
+  id          String     @id @default(uuid())
+  name        String
+  description String
+  image_url   String
+  price       Decimal
+  type        String
+  CartItem    CartItem[]
+
+  @@map("products")
+}
+
+model Cart {
+  id          String       @id @default(uuid())
+  user_id     String
+  total_price Decimal
+  user        User         @relation(fields: [user_id], references: [id])
+  items       CartItem[]
+  Scheduling  Scheduling[]
+
+  @@index([user_id])
+  @@map("carts")
+}
+
+model CartItem {
+  id         String  @id @default(uuid())
+  cart_id    String
+  cart       Cart    @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  product_id String
+  product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  quantity   Int     @default(1)
+
+  @@index([cart_id])
+  @@index([product_id])
+  @@map("cart_items")
+}
+
+model UserRepository {
+  id          String @id @default(uuid())
+  description String
+  name        String
+  image_url   String
+  user        User   @relation(fields: [user_id], references: [id])
+  user_id     String
 }
